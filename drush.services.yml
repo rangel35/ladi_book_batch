@@ -1,0 +1,5 @@
+services:
+  ladi_book_batch.commands:
+    class: \Drupal\ladi_book_batch\Commands\LadiBookBatchCommands
+    tags:
+      - { name: drush.command }

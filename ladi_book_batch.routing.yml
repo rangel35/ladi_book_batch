@@ -1,0 +1,7 @@
+ladi_book_batch.form:
+  path: '/ladi/batch'
+  defaults:
+    _form: 'Drupal\ladi_book_batch\Form\BatchForm'
+    _title: 'LADI Batch Ingest Form'
+  requirements:
+    _permission: 'access content'

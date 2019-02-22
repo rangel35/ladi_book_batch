@@ -1,0 +1,55 @@
+<?php
+
+/**
+ * @file
+ * Islandora LADI stuff.
+ */
+
+use Drupal\book\BookManager;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Url;
+use Drupal\node\NodeInterface;
+use Drupal\node\NodeTypeInterface;
+use Drupal\node\Entity\Node;
+use Drupal\Core\Language\LanguageInterface;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Template\Attribute;
+
+/**
+ * Implementing hook_menu().
+ */
+function ladi_book_batch_menu() {
+  // The paths given here need to match the ones in example.routing.yml exactly.
+  $items['/ladi/batch'] = array(
+    'title' => 'LADI Batch Ingest Form',
+    'description' => 'LADI Batch Ingest Form.',
+    // The name of the route from example.routing.yml
+    'route' => 'ladi/batch',
+  );
+  return $items;
+}
+
+
+/**
+ * Implements hook_rdf_namespaces().
+ */
+function ladi_book_batch_rdf_namespaces() {
+  return [
+    'dc' => 'http://purl.org/dc/terms/',
+    'foaf' => 'http://xmlns.com/foaf/0.1/',
+    'ebucore' => 'http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#',
+    'fedora' => 'http://fedora.info/definitions/v4/repository#',
+    'owl' => 'http://www.w3.org/2002/07/owl#',
+    'ore' => 'http://www.openarchives.org/ore/terms/',
+    'rdf' => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+    'islandora' => 'http://islandora.ca/CLAW/',
+    'pcdm' => 'http://pcdm.org/models#',
+    'use' => 'http://pcdm.org/use#',
+    'iana' => 'http://www.iana.org/assignments/relation/',
+    'relators' => 'http://id.loc.gov/vocabulary/relators/',
+  ];
+}
+

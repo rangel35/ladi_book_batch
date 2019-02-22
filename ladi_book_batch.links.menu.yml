@@ -1,0 +1,5 @@
+ladi_book_batch.admin:
+  title: 'Islandora LADI Book Batch module'
+  description: 'Module for Ladi batch ingest of books'
+  route_name: ladi_book_batch.form
+  weight: 100

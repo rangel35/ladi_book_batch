@@ -1,0 +1,5 @@
+name: Islandora LADI Book Batch
+description: A module for batch ingest of books 
+package: Custom
+type: module
+core: 8.x
