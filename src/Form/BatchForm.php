@@ -13,6 +13,7 @@ use Drupal\user\Entity\User;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\http_client_manager\HttpClientInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\ladi_book_batch\BatchEntry;
 
 /**
 * Implements batch form.
@@ -51,6 +52,20 @@ class BatchForm extends FormBase {
         '#default_value' => $userID,
         '#required' => TRUE,
     );
+    $form['namespace'] = array(
+		'#type' => 'select',
+		'#title' => t('Namespace (Partner)'),
+		'#options' => array(
+            t('CIDCA'),
+			t('CIRMA'),
+			t('MUPI'),
+			t('FRC'),
+			t('PCN'),
+			t('EAACONE'),
+		),
+		'#required' => TRUE,
+    );
+  
     $form['collection'] = array(
         '#type' => 'textfield',
         '#title' => t('Enter URI of Collection that will contain your batch of assets.'),
@@ -69,8 +84,7 @@ class BatchForm extends FormBase {
 		'#type' => 'radios',
 		'#title' => t('Ingest Type'),
 		'#options' => array(
-			t('Single book with pages'),
-			t('Multi-Books with pages'),
+			t('Books with pages'),
 			t('Individual Items (single or multi)'),
 		),
 		'#required' => TRUE,
@@ -90,22 +104,31 @@ class BatchForm extends FormBase {
 /**
 * {@inheritdoc}
 */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    
-	// Get the field
-	$nsp = $form_state->getValue('namespace');
-	$userEmail = $form_state->getValue('userEmail');
-	$userID = $form_state->getValue('userID');
-    $staff = $form_state->getValue('enteredBy');
-    $collection = $form_state->getValue('collection');
-	$location = $form_state->getValue('location');
-    $batchType = $form_state->getValue('batchType');
-    
-    $batchID = $staff . time();
+    public function submitForm(array &$form, FormStateInterface $form_state) {
+        
+        $tlCol = array('CIDCA', 'CIRMA', 'MUPI', 'FRC', 'PCN', 'EAACONE');
+        $row = array();
+        // Get the field
+        $colKey = $form_state->getValue('namespace');
+        $row['namespace'] = $tlCol[$colKey];
+        $row['userEmail'] = $form_state->getValue('userEmail');
+        $row['userID'] = $form_state->getValue('userID');
+        $row['userName'] = $form_state->getValue('enteredBy');
+        $row['collection'] = $form_state->getValue('collection');
+        $row['location'] = $form_state->getValue('location');
+        $row['batchType'] = $form_state->getValue('batchType');
 
-	drupal_set_message(t(\ingest\BatchEntry::format_batch_submission_output($batchID,$collection,$location, $staff,$userEmail, $batchType)), 'status');
-	\ingest\BatchEntry::add_batchrow_to_batch_queue($batchID,$collection,$location, $userID,$userEmail, $batchType);
+        $row['batchID'] = $row['userName'] . time();
+        $row['status'] = 0;
+        $input_dir = '/staging/Assets';
+        
+        $batchrow = new BatchEntry($row, $input_dir);
+        
+        $batchrow->format_batch_info($row) ;
+        
+        $batchrow->add_batchrow_to_batch_queue($row['batchID'], $row['namespace'], $row['collection'], $row['location'], $row['userID'], $row['userEmail'], $row['userName'], $row['batchType']);
 
-  }
+    }
 
 }
+
