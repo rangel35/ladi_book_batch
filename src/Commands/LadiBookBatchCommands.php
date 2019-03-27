@@ -70,10 +70,10 @@ class LadiBookBatchCommands extends DrushCommands {
 	public function batchIngest() {
 	   
         //change these settings or better yet add via ini file //TO DO
-		$host = 'HOST';
-		$username = 'USERNAME';
-		$password = 'PASSWORD';
-		$input_dir = 'UPLOAD DIRECTORY';
+		$host = 'http://localhost:8000/';
+		$username = 'admin';
+		$password = 'islandora';
+		$input_dir = '/staging/ASSETS';
 
         //Non-processing filenames or directories for use in project
         $illNames = array(".", "..", "Thumbs.db", ".DS_Store") ;
@@ -191,7 +191,7 @@ class LadiBookBatchCommands extends DrushCommands {
                                                                
                                 //hardcoded for testing
                                 $csv_entries = array( 
-                                    'type'  => 'cidca_book',
+                                    'type'  => 'islandora_object',
                                     'uid' => $batchrow->userID,
                                     'field_member_of' => $colID,   
 
@@ -215,15 +215,15 @@ class LadiBookBatchCommands extends DrushCommands {
                                 $node = \Drupal::entityTypeManager()->getStorage('node')->create($csv_entries);
 								                                
                                 //saves book node to drupal db
-								$node->save();
+				$node->save();
                                 
-								$bid = $node->id();                               
+				$bid = $node->id();                               
                                 echo "this is bid $bid \n";
                                 
-                				$nUUID = $node->uuid() ;
+                		$nUUID = $node->uuid() ;
                                 echo "this is book UUID $nUUID \n";
                                 $bookalias = "/" . $nspace . "/" . $nUUID ;
-							    echo "this is book bookalias $bookalias \n";
+				echo "this is book bookalias $bookalias \n";
                                 $system_path = "/node/" . $bid ; 
                                 $path = \Drupal::service('path.alias_storage')->save($system_path, $bookalias, "en");
 
@@ -236,7 +236,8 @@ class LadiBookBatchCommands extends DrushCommands {
                                 $url = $host . $bookalias;
                                 $msg .= "Book image ==> " . $pageFile . "\r\n"; 
                                 $msg .= "Book URL ==> " . $url . "\r\n";          
-							} else {
+				
+			} else {
 
                                 //Create Page(s) for book with limited metadata and media file
                                 //continue;
@@ -246,19 +247,19 @@ class LadiBookBatchCommands extends DrushCommands {
                                 
                                 $pageFile = array_shift($files) ;
                                 
-								print "book ID is " . $bid . "\n";
-								$node = \Drupal::entityTypeManager()->getStorage('node')->create(array(
-								  'type'        => 'book',
-								  'title'       => $import_row[2],
-								  'uid'		=> $batchrow->userID,
-								  'field_identifier_local'       => $import_row[1],
-								  'field_member_of'       => $bid,
-								));
-								$node->save();
-								$pageID = $node->id();
-								$pages[] = $pageID ;
+				print "book ID is " . $bid . "\n";
+				$node = \Drupal::entityTypeManager()->getStorage('node')->create(array(
+				  'type'        => 'book',
+				  'title'       => $import_row[2],
+				  'uid'		=> $batchrow->userID,
+				  'field_identifier_local'       => $import_row[1],
+				  'field_member_of'       => $bid,
+				));
+				$node->save();
+				$pageID = $node->id();
+				$pages[] = $pageID ;
 
-                				$nUUID = $node->uuid() ;
+                		$nUUID = $node->uuid() ;
                                 echo "this is page UUID $nUUID \n";
                                 echo "pageID is $pageID \n";
                                 $pagealias = "/" . $nspace . "/" . $nUUID ;
@@ -274,32 +275,32 @@ class LadiBookBatchCommands extends DrushCommands {
                                 $msg .= "Page image ==> " . $pageFile . "\r\n" ; 
                                 $msg .= "Page URL ==> " . $urlP . "\r\n" ; 
 
-							}
+			}
 							
 							//var_dump($pages);
 							
-						}
+		}
 												
-                    }
+            }
 										
                     //print "email message is: \n $msg \n";
                     $batchrow->close_batch_row($row, $input_dir);
                     $batchrow->batch_submission_email($batchID, $userEmail,$msg);
-                }
-                
-			} else {
-				echo "no batches queued for ingest\n";
-				die;
-			}
+        }
+             
+	} else {
+		echo "no batches queued for ingest\n";
+		die;
+	}
 		
 
-		} catch (PDOException $e) {
-			echo 'Connection failed: ' . $e->getMessage();
-		}
-		
-		
-	
+	} catch (PDOException $e) {
+		echo 'Connection failed: ' . $e->getMessage();
 	}
+		
+
+
+}
 	
     //adding new book info to drupal "book" table to set up the pagination properties
     private function add_book_entry_to_drupal_db($connection, $bid)
