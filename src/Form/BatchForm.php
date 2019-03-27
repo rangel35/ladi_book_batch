@@ -53,17 +53,9 @@ class BatchForm extends FormBase {
         '#required' => TRUE,
     );
     $form['namespace'] = array(
-		'#type' => 'select',
-		'#title' => t('Namespace (Partner)'),
-		'#options' => array(
-            t('CIDCA'),
-			t('CIRMA'),
-			t('MUPI'),
-			t('FRC'),
-			t('PCN'),
-			t('EAACONE'),
-		),
-		'#required' => TRUE,
+		'#type' => 'textfield',
+		'#title' => t('Namespace'),
+		'#description' => t('preserve namespaces if desired will show up in uri along with uuid'),
     );
   
     $form['collection'] = array(
@@ -106,11 +98,9 @@ class BatchForm extends FormBase {
 */
     public function submitForm(array &$form, FormStateInterface $form_state) {
         
-        $tlCol = array('CIDCA', 'CIRMA', 'MUPI', 'FRC', 'PCN', 'EAACONE');
         $row = array();
         // Get the field
-        $colKey = $form_state->getValue('namespace');
-        $row['namespace'] = $tlCol[$colKey];
+        $row['namespace'] = $form_state->getValue('namespace');
         $row['userEmail'] = $form_state->getValue('userEmail');
         $row['userID'] = $form_state->getValue('userID');
         $row['userName'] = $form_state->getValue('enteredBy');
@@ -131,4 +121,5 @@ class BatchForm extends FormBase {
     }
 
 }
+
 

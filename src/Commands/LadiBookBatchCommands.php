@@ -73,7 +73,7 @@ class LadiBookBatchCommands extends DrushCommands {
 		$host = 'http://localhost:8000/';
 		$username = 'admin';
 		$password = 'islandora';
-		$input_dir = '/staging/ASSETS';
+		$input_dir = '/home/vagrant/custom/staging/ASSETS';
 
         //Non-processing filenames or directories for use in project
         $illNames = array(".", "..", "Thumbs.db", ".DS_Store") ;
@@ -353,11 +353,12 @@ class LadiBookBatchCommands extends DrushCommands {
         $data = file_get_contents($fileMedia);
         
         //TODO: add code to create new directory when month changes
-        $date = date("Y-m");
-        $publicDir = 'public://' . $date . "/" ;
-                
+//        $date = date("Y-m");
+//        $publicDir = 'public://' . $date . "/" ;
+        
+        $publicDir = 'public://' ;        
         $destination = $publicDir . $pageFile ;
-         print "destination is " . $destination . "\n";
+        print "destination is " . $destination . "\n";
 
         $fileEnt = file_save_data($data, $destination, FILE_EXISTS_RENAME);
         print "fileMedia is " . $fileMedia . "\n";
