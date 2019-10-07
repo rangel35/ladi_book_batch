@@ -49,7 +49,7 @@ function ladi_book_batch_rdf_namespaces() {
     'pcdm' => 'http://pcdm.org/models#',
     'use' => 'http://pcdm.org/use#',
     'iana' => 'http://www.iana.org/assignments/relation/',
-    'relators' => 'http://id.loc.gov/vocabulary/relators/',
+    'rel' => 'http://id.loc.gov/vocabulary/relators/',
   ];
 }
 
