@@ -3,3 +3,17 @@ description: A module for batch ingest of books
 package: Custom
 type: module
 core: 8.x
+dependencies:
+  - book
+  - image
+  - islandora
+  - islandora_core_feature
+  - islandora_defaults
+  - islandora_image
+  - language
+  - node
+  - openseadragon
+  - path
+  - rdf
+  - system
+  - taxonomy
