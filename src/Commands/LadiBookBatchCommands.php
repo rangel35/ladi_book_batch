@@ -74,10 +74,9 @@ class LadiBookBatchCommands extends DrushCommands {
    */
 	public function batchIngest() {
 	
-		$host = 'https://ladi-test.lib.utexas.edu';
-//		$host = 'https://dams-p01.lib.utexas.edu';
-//      $host = 'http://localhost:8000/';
-
+        //local hostname
+        $host = 'http://localhost:8000/';
+		//local upload directory
         $input_dir = '/staging/ASSETS';
 
         //Non-processing filenames or directories for use in project
