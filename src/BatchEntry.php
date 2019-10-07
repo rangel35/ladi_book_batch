@@ -23,6 +23,7 @@ class BatchEntry
          $this->userEmail = $row['userEmail'] ;
          $this->userName = $row['userName'] ;
          $this->batchType = $row['batchType'] ;
+         $this->batchLang = $row['batchLang'] ;
          $this->status = $row['status'] ;
          $this->asset_path = $input_dir . "/" . $this->location ;
          
@@ -39,7 +40,7 @@ class BatchEntry
         return $msg;
      }
 
-     public static function add_batchrow_to_batch_queue($batchID,$namespace,$collection,$location, $userID,$userEmail,$userName, $batchType){
+     public static function add_batchrow_to_batch_queue($batchID,$namespace,$collection,$location, $userID,$userEmail,$userName, $batchType, $batchLang){
 
          $connection = \Drupal\Core\Database\Database::getConnection();
 
@@ -53,6 +54,7 @@ class BatchEntry
                  'userEmail' => $userEmail,
                  'userName' => $userName,
                  'batchType' => $batchType,
+                 '$batchLang' => $batchLang,
                  'status' => 0,
              ])
              ->execute();
@@ -92,6 +94,7 @@ class BatchEntry
         drupal_set_message(t('Staff Email for Reporting ==  @ue.', array('@ue' => $row['userEmail'])), 'status');
         drupal_set_message(t('Sub-collection for batch ==  @scol.', array('@scol' => $row['collection'])), 'status');
         drupal_set_message(t('Location of Items for Ingest ==  @loc.', array('@loc' => $row['location'])), 'status');
+        drupal_set_message(t('Language of Items for Ingest ==  @lang.', array('@lang' => $row['batchLang'])), 'status');
         drupal_set_message(t('Type of Batch for Ingest ==  @bt.', array('@bt' => $btypes[$bKey])), 'status');
 
     }
