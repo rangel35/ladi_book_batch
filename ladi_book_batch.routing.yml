@@ -5,3 +5,4 @@ ladi_book_batch.form:
     _title: 'LADI Batch Ingest Form'
   requirements:
     _permission: 'access content'
+    _role: 'administrator'
