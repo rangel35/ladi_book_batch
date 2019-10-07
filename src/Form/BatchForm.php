@@ -53,9 +53,17 @@ class BatchForm extends FormBase {
         '#required' => TRUE,
     );
     $form['namespace'] = array(
-		'#type' => 'textfield',
-		'#title' => t('Namespace'),
-		'#description' => t('preserve namespaces if desired will show up in uri along with uuid'),
+		'#type' => 'select',
+		'#title' => t('Namespace (Partner)'),
+		'#options' => array(
+            t('CIDCA'),
+			t('CIRMA'),
+			t('MUPI'),
+			t('FRC'),
+			t('PCN'),
+			t('EAACONE'),
+		),
+		'#required' => TRUE,
     );
   
     $form['collection'] = array(
@@ -72,12 +80,22 @@ class BatchForm extends FormBase {
         '#description' => t('Enter your directory name only (EXAMPLE: directory_name)'),
         '#required' => TRUE,
     );
+      
+ 	$form['batchLang'] = array(
+        '#type' => 'radios',
+		'#title' => t('Batch Language'),
+        '#options' => array('en' => "English", 'es' => "Spanish", 'pt-br' => "Portuguese"),
+        '#default_value' => array('es' => "Spanish"),
+		'#required' => TRUE,
+	);
+
  	$form['batchType'] = array(
 		'#type' => 'radios',
 		'#title' => t('Ingest Type'),
 		'#options' => array(
 			t('Books with pages'),
 			t('Individual Items (single or multi)'),
+			t('Composite Items (documents with pages)'),
 		),
 		'#required' => TRUE,
 	);
@@ -98,15 +116,18 @@ class BatchForm extends FormBase {
 */
     public function submitForm(array &$form, FormStateInterface $form_state) {
         
+        $tlCol = array('CIDCA', 'CIRMA', 'MUPI', 'FRC', 'PCN', 'EAACONE');
         $row = array();
         // Get the field
-        $row['namespace'] = $form_state->getValue('namespace');
+        $colKey = $form_state->getValue('namespace');
+        $row['namespace'] = $tlCol[$colKey];
         $row['userEmail'] = $form_state->getValue('userEmail');
         $row['userID'] = $form_state->getValue('userID');
         $row['userName'] = $form_state->getValue('enteredBy');
         $row['collection'] = $form_state->getValue('collection');
         $row['location'] = $form_state->getValue('location');
         $row['batchType'] = $form_state->getValue('batchType');
+        $row['batchLang'] = $form_state->getValue('batchLang');
 
         $row['batchID'] = $row['userName'] . time();
         $row['status'] = 0;
@@ -116,10 +137,9 @@ class BatchForm extends FormBase {
         
         $batchrow->format_batch_info($row) ;
         
-        $batchrow->add_batchrow_to_batch_queue($row['batchID'], $row['namespace'], $row['collection'], $row['location'], $row['userID'], $row['userEmail'], $row['userName'], $row['batchType']);
+        $batchrow->add_batchrow_to_batch_queue($row['batchID'], $row['namespace'], $row['collection'], $row['location'], $row['userID'], $row['userEmail'], $row['userName'], $row['batchType'], $row['batchLang']);
 
     }
 
 }
-
 
