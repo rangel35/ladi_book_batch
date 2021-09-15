@@ -4,6 +4,7 @@ package: Custom
 type: module
 core: 8.x
 dependencies:
+  - block
   - book
   - image
   - islandora

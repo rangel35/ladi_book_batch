@@ -7,6 +7,9 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Database\Driver\mysql\Connection;
 use Drupal\Core\Database\DatabaseNotFoundException;
+use Drupal\Core\Logger\LoggerChannelTrait;
+use Drupal\ladi_book_batch\Email;
+use Exception;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\user\Entity\User;
 
@@ -23,6 +26,13 @@ class BatchForm extends FormBase {
 /**
 * {@inheritdoc}
 */
+  use LoggerChannelTrait;
+
+  function __construct()
+    {
+        $this->email = new Email();
+    }
+
   public function getFormId() {
     return 'ladi_batch_form';
   }
@@ -31,7 +41,7 @@ class BatchForm extends FormBase {
 * {@inheritdoc}
 */
   public function buildForm(array $form, FormStateInterface $form_state) {
-
+  try {
     $user = User::load(\Drupal::currentUser()->id());
 	$email = $user->get('mail')->value;
 	$name = $user->get('name')->value;
@@ -59,7 +69,7 @@ class BatchForm extends FormBase {
             t('CIDCA'),
 			t('CIRMA'),
 			t('MUPI'),
-			t('FRC'),
+        t('AJEP'),
 			t('PCN'),
 			t('EAACONE'),
 		),
@@ -86,6 +96,7 @@ class BatchForm extends FormBase {
 		'#title' => t('Batch Language'),
         '#options' => array('en' => "English", 'es' => "Spanish", 'pt-br' => "Portuguese"),
         '#default_value' => array('es' => "Spanish"),
+          '#description' => t('If language selection is Portuguese, you will need to make sure your csv taxonomies point to the term ID and not the text'),
 		'#required' => TRUE,
 	);
 
@@ -108,6 +119,11 @@ class BatchForm extends FormBase {
       '#button_type' => 'primary',
     ];
     return $form;
+    } catch (Exception $e) {
+      $msg = $e->getMessage();
+      $this->getLogger('ladi_book_batch')->error("Batch Form build error: {$msg}");
+      $this->email->send_error_email("Batch Form build error: {$msg}");
+    }
   }
 
 
@@ -115,8 +131,8 @@ class BatchForm extends FormBase {
 * {@inheritdoc}
 */
     public function submitForm(array &$form, FormStateInterface $form_state) {
-        
-        $tlCol = array('CIDCA', 'CIRMA', 'MUPI', 'FRC', 'PCN', 'EAACONE');
+        try {
+          $tlCol = array('CIDCA', 'CIRMA', 'MUPI', 'AJEP', 'PCN', 'EAACONE');
         $row = array();
         // Get the field
         $colKey = $form_state->getValue('namespace');
@@ -139,6 +155,11 @@ class BatchForm extends FormBase {
         
         $batchrow->add_batchrow_to_batch_queue($row['batchID'], $row['namespace'], $row['collection'], $row['location'], $row['userID'], $row['userEmail'], $row['userName'], $row['batchType'], $row['batchLang']);
 
+        } catch (Exception $e) {
+          $msg = $e->getMessage();
+          $this->getLogger('ladi_book_batch')->error("Batch Form submit error: {$msg}");
+          $this->email->send_error_email("Batch Form submit error: {$msg}");
+        }
     }
 
 }

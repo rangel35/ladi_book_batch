@@ -8,6 +8,9 @@
  */
 
 namespace Drupal\ladi_book_batch ;
+use Drupal\Core\Logger\LoggerChannelTrait;
+use Drupal\ladi_book_batch\Email;
+use Exception;
 
 class BatchEntry
 {
@@ -26,11 +29,12 @@ class BatchEntry
          $this->batchLang = $row['batchLang'] ;
          $this->status = $row['status'] ;
          $this->asset_path = $input_dir . "/" . $this->location ;
-         
+         $this->email = new Email();
          
      }
 
      function format_email_output(){
+        try {
         $msg = $this->now . "\r\n" ; 
         $msg .= "Staff submitted ===> " . $this->userName  . "\r\n";
         $msg .= "Partner Namespace ===> " .  $this->nspace . "\r\n"; 
@@ -38,10 +42,16 @@ class BatchEntry
         $msg .= "Batch ID ===> " .  $this->batchID  . "\r\n";
 
         return $msg;
+
+        } catch (Exception $e) {
+            $msg = $e->getMessage();
+            $this->getLogger('ladi_book_batch')->error("Batch Entry format email error: {$msg}");
+            $this->email->send_error_email("Batch Entry format email error: {$msg}");
+        }
      }
 
      public static function add_batchrow_to_batch_queue($batchID,$namespace,$collection,$location, $userID,$userEmail,$userName, $batchType, $batchLang){
-
+        try {
          $connection = \Drupal\Core\Database\Database::getConnection();
 
          $connection->insert('batch_queue')
@@ -58,34 +68,15 @@ class BatchEntry
                  'status' => 0,
              ])
              ->execute();
+        } catch (Exception $e) {
+            $msg = $e->getMessage();
+            $this->getLogger('ladi_book_batch')->error("Batch Entry error - unable to add batch row to batch queue: {$msg}");
+            $this->email->send_error_email("Batch Entry error - unable to add batch row to batch queue: {$msg}");
      }
-
-    public static function batch_submission_email($batchID, $userEmail,$message){
-         $subject = "LADI batch submission: " . $batchID;
-         $message .= "\n.";
-         
-         print "email subject is: \n $subject \n";
-         print "email to is: \n $userEmail \n";
-         print "email message is: \n $message \n";
-         
-         $to = $userEmail;
-                  
-         $header = "From: minrangel@gmail.com \n";  //change to appropriate from email
-//         $header .= "MIME-Version: 1.0 \n";
-//         $header .= "Content-type: text/text \n";
-         
-         $retval = mail ($to,$subject,$message,$header);
-         
-         if( $retval == true ) {
-            echo "Message sent successfully...\n";
-         }else {
-            echo "Message could not be sent...\n";
-         }
-         
-         
     }
     
     public static function format_batch_info($row) {
+        try {
         $btypes = array('Books with pages', 'Individual Items (single or multi)');
         $bKey = $row['batchType'] ;
         drupal_set_message(t('batchID ==  @bID.', array('@bID' => $row['batchID'])), 'status');
@@ -96,13 +87,18 @@ class BatchEntry
         drupal_set_message(t('Location of Items for Ingest ==  @loc.', array('@loc' => $row['location'])), 'status');
         drupal_set_message(t('Language of Items for Ingest ==  @lang.', array('@lang' => $row['batchLang'])), 'status');
         drupal_set_message(t('Type of Batch for Ingest ==  @bt.', array('@bt' => $btypes[$bKey])), 'status');
-
+        } catch (Exception $e) {
+            $msg = $e->getMessage();
+            $this->getLogger('ladi_book_batch')->error("Batch Entry error - unable to format batch info: {$msg}");
+            $this->email->send_error_email("Batch Entry error - unable to format batch info: {$msg}");
+        }
     }
 
     /**
      * function to update batch queue table after ingest
     */
      public static function close_batch_row($row,$input_dir){
+        try {
          $now = time();
          $connection = \Drupal\Core\Database\Database::getConnection();
 
@@ -119,6 +115,12 @@ class BatchEntry
          //echo ("$batchPath is the batchpath\n");
          //echo ("$donePath is the donePath\n");
          rename($batchPath, $donePath);
+
+        } catch (Exception $e) {
+            $msg = $e->getMessage();
+            $this->getLogger('ladi_book_batch')->error("Batch Entry close_batch_row function error: {$msg}");
+            $this->email->send_error_email("Batch Entry close_batch_row function error: {$msg}");
+        }
 
      }
     
